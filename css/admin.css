@@ -1,0 +1,122 @@
+/* Admin Dashboard CSS */
+
+body {
+    background-color: #f4f7f6;
+    margin-top: 20px;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.container {
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h2, h3 {
+    color: #333;
+}
+
+.table {
+    margin-top: 20px;
+}
+
+.table thead th {
+    background-color: #4e73df;
+    color: white;
+    border-color: #4e73df;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fc;
+}
+
+.table td, .table th {
+    padding: 12px;
+    vertical-align: middle;
+    border-top: 1px solid #e3e6f0;
+}
+
+.btn-info {
+    color: #fff;
+    background-color: #36b9cc;
+    border-color: #36b9cc;
+}
+
+.btn-info:hover {
+    color: #fff;
+    background-color: #2c9faf;
+    border-color: #2a96a5;
+}
+
+.btn-danger {
+    color: #fff;
+    background-color: #e74a3b;
+    border-color: #e74a3b;
+}
+
+.btn-danger:hover {
+    color: #fff;
+    background-color: #d63324;
+    border-color: #c53020;
+}
+
+.btn {
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin: 0 5px;
+}
+
+a.btn {
+    text-decoration: none;
+}
+
+/* Status Toggle Styles */
+.toggle {
+    display: none;
+}
+
+.slider {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+}
+
+.slider .active-text,
+.slider .inactive-text {
+    color: #fff;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.slider .active-text {
+    left: 10px;
+}
+
+.slider .inactive-text {
+    right: 10px;
+}
+
+/* Logout Button */
+.btn-logout {
+    background-color: #d9534f;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    margin-top: 20px;
+}
+
+.btn-logout:hover {
+    background-color: #c9302c;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+}
