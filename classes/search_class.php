@@ -60,8 +60,9 @@ session_start();
         if (isset($_POST['friend_req'])) {
             $receiver = $_POST['friend_req'];
             $senderEmail = $_SESSION['member_details']['email'];
+            $currentuser = $_SESSION['member_details']['email'];
 
-            $check_r = "SELECT email FROM users WHERE email = '$receiver'";
+            $check_r = "SELECT email FROM users WHERE email = '$receiver' AND email != '$currentuser'";
             $r_result = mysqli_query($this->get_connection(), $check_r);
 
             if ($r_result && mysqli_num_rows($r_result) > 0) {
