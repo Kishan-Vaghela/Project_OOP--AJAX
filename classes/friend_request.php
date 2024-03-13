@@ -37,8 +37,9 @@ class FriendRequest extends Database
      */
     public function request()
     {
+        $currentuser = $_SESSION['member_details']['email'];
         $user_Email = $_SESSION['member_details']['email'];
-        $sql = "SELECT sender_email, status FROM friend_requests WHERE receiver_email = '$user_Email' AND status = 'pending'";
+        $sql = "SELECT sender_email, status FROM friend_requests WHERE receiver_email = '$user_Email' AND status = 'pending' AND sender_email != '$currentuser'";
         $result = mysqli_query($this->get_connection(), $sql);
         return $result;
     }

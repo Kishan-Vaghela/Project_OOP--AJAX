@@ -8,7 +8,8 @@ session_start();
  * It includes methods to search for users, send friend requests, cancel friend requests, and display search results.
  */
 
- class Search extends Database {
+class Search extends Database
+{
     /**
      * Constructor method
      * 
@@ -17,7 +18,8 @@ session_start();
      *
      * @return void
      */
-    public function __construct() {
+    public function __construct()
+    {
         if (!isset($_SESSION['member_details']) || $_SESSION['member_details']['role'] !== 'User') {
             header("Location: login.php");
             exit;
@@ -33,9 +35,10 @@ session_start();
      *
      * @return mixed Result set from the database query.
      */
-    public function searchUsers() {
+    public function searchUsers()
+    {
         $currentuser = $_SESSION['member_details']['email'];
-        $sql = "SELECT * FROM users WHERE role = 'User' AND email != '$currentuser'";
+        $sql = "SELECT * FROM users WHERE role = 'User' AND email != '$currentuser'  ";
 
         if (isset($_POST['search_email']) && !empty($_POST['search_email'])) {
             $searchEmail = $_POST['search_email'];
@@ -56,12 +59,14 @@ session_start();
      *
      * @return void
      */
-    public function FriendRequest() {
+    public function FriendRequest()
+    {
         if (isset($_POST['friend_req'])) {
             $receiver = $_POST['friend_req'];
             $senderEmail = $_SESSION['member_details']['email'];
+            $currentuser = $_SESSION['member_details']['email'];
 
-            $check_r = "SELECT email FROM users WHERE email = '$receiver'";
+            $check_r = "SELECT email FROM users WHERE email = '$receiver' AND email != '$currentuser'";
             $r_result = mysqli_query($this->get_connection(), $check_r);
 
             if ($r_result && mysqli_num_rows($r_result) > 0) {
@@ -86,7 +91,8 @@ session_start();
      *
      * @return void
      */
-    public function CancelRequest() {
+    public function CancelRequest()
+    {
         if (isset($_POST['cancel_req'])) {
             $receiver = $_POST['cancel_req'];
             $senderEmail = $_SESSION['member_details']['email'];
@@ -107,25 +113,59 @@ session_start();
      * displaySearchResults Method
      * 
      * Displays the search results in the specified format.
-     * Calls the searchUsers method to fetch results and iterates through the result set to display user information.
+     * Calls the searchUsers method to fetch results, shuffles the result set,
+     * and then iterates through the shuffled result set to display user information.
      *
      * @return void
      */
-    public function displaySearchResults() {
+    public function displaySearchResults()
+    {
         $result = $this->searchUsers();
 
         if ($result) {
+           
+            $rows = [];
             while ($row = mysqli_fetch_assoc($result)) {
-                echo '<div class="user-result">';
-                echo '<p>Email: ' . $row['email'] . '</p>';
-                echo '<button onclick="sendFriendRequest(\'' . $row['email'] . '\')">Send Friend Request</button>';
-                echo '</div>';
-                exit();
+                $rows[] = $row;
+            }
+            shuffle($rows);
+            $rows = array_slice($rows, 0, 5);
+      
+            foreach ($rows as $row) {
+                echo '<tr>';
+                echo '<td>' . $row['firstname'] . '</td>';
+                echo '<td>' . $row['lastname'] . '</td>';
+                echo '<td>' . $row['email'] . '</td>';
+                echo '<td>' . $row['phone'] . '</td>';
+                echo '<td>';
+
+                $email = $_SESSION['member_details']['email'];
+                $femail = $row['email'];
+                $queryc = "SELECT * FROM friend_requests WHERE sender_email = '$email' AND receiver_email = '$femail'";
+                $rcheck = mysqli_query($this->get_connection(), $queryc);
+                $qcheck = mysqli_fetch_array($rcheck, MYSQLI_ASSOC);
+
+                if (empty($qcheck)) {
+                    echo '<form action="" method="POST">';
+                    echo '<button name="friend_req" class="btn btn-info" value="' . $femail . '">Friend Request</button>';
+                    echo '</form>';
+                } elseif ($qcheck['status'] === 'pending') {
+                    echo "Request Already Sent &nbsp;&nbsp;";
+                    echo '<form action="" method="POST">';
+                    echo '<button name="cancel_req" class="btn btn-danger" value="' . $femail . '">Cancel Request</button>';
+                    echo '</form>';
+                } elseif ($qcheck['status'] === 'accepted') {
+                    echo "Request Accepted!";
+                }
+
+                echo '</td>';
+                echo '</tr>';
             }
         } else {
-            echo '<div class="alert alert-danger">Failed to fetch search results: ' . mysqli_error($this->get_connection()) . '</div>';
+            echo '<tr><td colspan="5" class="text-center">No results found.</td></tr>';
         }
     }
+
 }
 
 ?>

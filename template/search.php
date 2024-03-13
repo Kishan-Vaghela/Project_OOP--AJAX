@@ -73,7 +73,7 @@ $searchObj->CancelRequest();
                 <form class="form-inline my-2 my-lg-0 search-form">
                     <input class="form-control mr-sm-2" type="search" placeholder="Search by Email" aria-label="Search"
                         name="search_email" id="search">
-                    <button id="search-btn" name ="search" class="btn btn-outline-success my-2 my-sm-0" type="button">Search</button>
+                    <button id="search-btn" name="search" class="btn btn-outline-success my-2 my-sm-0" type="button">Search</button>
                 </form>
             </div>
         </div>
@@ -89,37 +89,9 @@ $searchObj->CancelRequest();
             </thead>
             <tbody id="table">
                 <?php
-                $result = $searchObj->searchUsers();
-                while ($row = mysqli_fetch_assoc($result)) {
-                    echo '<tr>';
-                    echo '<td>' . $row['firstname'] . '</td>';
-                    echo '<td>' . $row['lastname'] . '</td>';
-                    echo '<td>' . $row['email'] . '</td>';
-                    echo '<td>' . $row['phone'] . '</td>';
-                    echo '<td>';
-
-                    $email = $_SESSION['member_details']['email'];
-                    $femail = $row['email'];
-                    $queryc = "SELECT * FROM friend_requests WHERE sender_email = '$email' AND receiver_email = '$femail'";
-                    $rcheck = mysqli_query($searchObj->get_connection(), $queryc);
-                    $qcheck = mysqli_fetch_array($rcheck, MYSQLI_ASSOC);
-
-                    if (empty($qcheck)) {
-                        echo '<form action="" method="POST">';
-                        echo '<button name="friend_req" class="btn btn-info" value="' . $femail . '">Friend Request</button>';
-                        echo '</form>';
-                    } elseif ($qcheck['status'] === 'pending') {
-                        echo "Request Already Sent &nbsp;&nbsp;";
-                        echo '<form action="" method="POST">';
-                        echo '<button name="cancel_req" class="btn btn-danger" value="' . $femail . '">Cancel Request</button>';
-                        echo '</form>';
-                    } elseif ($qcheck['status'] === 'accepted') {
-                        echo "Request Accepted!";
-                    }
-
-                    echo '</td>';
-                    echo '</tr>';
-                }
+                $searchObj->FriendRequest();
+                $searchObj->CancelRequest();
+                $searchObj->displaySearchResults(); // Updated to use the shuffled results
                 ?>
             </tbody>
         </table>
