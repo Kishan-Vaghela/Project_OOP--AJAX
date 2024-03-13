@@ -11,10 +11,11 @@ class SearchAjax extends Database
 
     public function search()
     {
-        if(isset($_POST['search']) && !empty($_POST['search'])) {
+        if (isset($_POST['search']) && !empty($_POST['search'])) {
             $currentuser = $_SESSION['member_details']['email'];
             $search = $_POST['search'];
-            $sql = "SELECT * FROM users WHERE email LIKE '$search%' ";
+            $sql = "SELECT * FROM users WHERE email LIKE '$search%' AND email != '$currentuser' ";
+
             $result = mysqli_query($this->get_connection(), $sql);
             if ($result && mysqli_num_rows($result) > 0) {
                 echo '<table class="table">';
@@ -29,7 +30,7 @@ class SearchAjax extends Database
                     $email = $_SESSION['member_details']['email'];
                     $femail = $row['email'];
                     $queryc = "SELECT * FROM friend_requests WHERE sender_email = '$email' AND receiver_email = '$femail'";
-                    $rcheck = mysqli_query($this->get_connection(), $queryc); 
+                    $rcheck = mysqli_query($this->get_connection(), $queryc);
                     $qcheck = mysqli_fetch_array($rcheck, MYSQLI_ASSOC);
 
                     if (empty($qcheck)) {
@@ -52,8 +53,9 @@ class SearchAjax extends Database
             } else {
                 echo '<a href="#" class="list-group-item list-group-item-action">No results found</a>';
             }
-        }}
+        }
     }
+}
 
 
 $search = new SearchAjax();

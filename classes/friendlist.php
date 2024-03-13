@@ -63,8 +63,9 @@ class FriendList extends Database {
 
      */
     public function getFriendList() {
+        $currentuser = $_SESSION['member_details']['email'];
         $user_Email = $_SESSION['member_details']['email'];
-        $sql = "SELECT sender_email FROM friend_requests WHERE receiver_email = '$user_Email' AND status = 'accepted'";
+        $sql = "SELECT sender_email FROM friend_requests WHERE receiver_email = '$user_Email' AND status = 'accepted' AND sender_email != '$currentuser'";
         $result = $this->query($sql);
         return $result;
     }
