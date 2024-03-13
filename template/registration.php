@@ -15,8 +15,8 @@ new Register();
 
 
     <script>
-        $(document).ready(function () {
-            $('#FormID').submit(function (event) {
+        $(document).ready(function() {
+            $('#FormID').submit(function(event) {
 
 
                 if (validateForm()) {
@@ -29,12 +29,13 @@ new Register();
                         data: formData,
                         processData: false,
                         contentType: false,
-                        success: function (response) {
+                        success: function(response) {
                             $('#error_para').html(response);
                         }
                     });
                 }
             });
+
             function validateForm() {
                 var error = "";
                 var firstname = document.getElementById('firstname').value;
@@ -84,15 +85,15 @@ new Register();
             <legend>Registration Form</legend>
 
             <form id="FormID" method="post" action="" onsubmit="validateForm()">
-            <div id="error_message">
-                <?php
-                if (isset($_SESSION['error_message'])) {
-                    echo $_SESSION['error_message'];
-                    unset($_SESSION['error_message']);
-                }
-                ?>
-            </div>
-            <br>
+                <div id="error_message">
+                    <?php
+                    if (isset($_SESSION['error_message'])) {
+                        echo $_SESSION['error_message'];
+                        unset($_SESSION['error_message']);
+                    }
+                    ?>
+                </div>
+                <br>
                 <label for="firstname">First Name:</label>
                 <input type="text" id="firstname" name="firstname"><br>
                 <br>
@@ -119,7 +120,7 @@ new Register();
             </form>
 
 
-            
+
         </fieldset>
     </div>
 </body>
