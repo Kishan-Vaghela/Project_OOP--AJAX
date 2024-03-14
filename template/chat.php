@@ -186,7 +186,7 @@ if (isset($_POST['friendEmail'])) {
 
             setInterval(function () {
                 loadChat();
-            }, 3000)
+            }, 1000)
         });
     </script>
 

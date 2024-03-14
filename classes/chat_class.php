@@ -75,10 +75,10 @@ class Chat extends Database
             unset($_SESSION['redirectReceiverEmail']);
         }
 
-        $sql = "SELECT * FROM messages 
-        WHERE (sender_email = '$senderEmail' AND receiver_email = '$friendEmail') 
-        OR (sender_email = '$friendEmail' AND receiver_email = '$senderEmail')
-        ORDER BY timestamp ASC";
+        $sql = "SELECT m.*
+        FROM messages m
+        INNER JOIN users u ON (m.sender_email = u.email AND u.email IN ('$senderEmail', '$friendEmail')) 
+        ORDER BY m.timestamp ASC";
 
         $result = mysqli_query($this->get_connection(), $sql);
         if ($result && mysqli_num_rows($result) > 0) {
