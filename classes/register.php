@@ -1,6 +1,6 @@
 <?php
 session_start();
-include "../classes/db.php";
+include "db.php";
 
 
 /**
@@ -23,7 +23,7 @@ class Register extends Database
     public function __construct()
     {
         parent::__construct();
-
+       
         $this->register();
     }
 
@@ -39,6 +39,7 @@ class Register extends Database
     public function register()
     {
         if (isset($_POST['submit'])) {
+
             $firstname = $_POST['firstname'];
             $lastname = $_POST['lastname'];
             $password = $_POST['pass'];
@@ -47,20 +48,20 @@ class Register extends Database
             $address = $_POST['address'];
             $role = "User";
 
+            if ( empty( $email ) || empty( $phone ) ) {
+                header('location: ../template/registration.php');
+                return;
+            }
+
             // Check for duplicate user entries
             $duplicate = "SELECT * FROM users";
             $duplicate_result = mysqli_query($this->get_connection(), $duplicate);
 
             while ($row = mysqli_fetch_array($duplicate_result, MYSQLI_ASSOC)) {
                 if ($row['email'] == $email || $row['phone'] == $phone) {
-                    $_SESSION['user_exists'] = 1;
-                    header('location: registration.php');
+                    $_SESSION['error_message'] = "User with this email or phone number already exists!";
+                    header('location: ../template/registration.php');
                     exit();
-
-                    if (isset($_SESSION['user_exists'])) {
-                        echo '<script>alert("User Already Exists")</script>';
-                    }
-                    unset($_SESSION['user_exists']);
                 }
             }
 
@@ -84,13 +85,16 @@ class Register extends Database
                 $_SESSION['register_message'] = "You are registered successfully!";
 
                 // Redirect to the user page
-                header("Location: registration.php");
+                header("Location: ../template/user.php");
                 exit();
             } else {
-                echo "<script>alert('Error!')</script>" . $sql . "<br>" . $this->get_connection()->error;
+                $_SESSION['error_message'] = "Error occurred while registering. Please try again later.";
+                header('location: ../template/registration.php');
+                exit();
             }
         }
     }
 }
 
+new Register();
 ?>
