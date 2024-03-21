@@ -40,8 +40,9 @@ class Login extends Database
         if (isset($_POST['login'])) {
             $email = $_POST['email'];
             $password = $_POST['pass'];
+            $hash_password = hash('sha256', $password);
 
-            $row = $this->loginUser($email, $password, $this->conn);
+            $row = $this->loginUser($email, $hash_password, $this->conn);
 
             if ($row) {
                 if ($row['role'] == 'admin') {
@@ -67,8 +68,8 @@ class Login extends Database
      *
      * @return array|null Returns the user details or null if authentication fails.
      */
-    protected function loginUser($email, $password, $conn) {
-        $sql = "SELECT * FROM users WHERE email = '$email' AND password = '$password'";
+    protected function loginUser($email, $hash_password, $conn) {
+        $sql = "SELECT * FROM users WHERE email = '$email' AND password = '$hash_password'";
         $result = mysqli_query($conn, $sql);
 
         if ($result) {

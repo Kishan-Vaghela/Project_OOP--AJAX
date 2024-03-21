@@ -1,6 +1,6 @@
 <?php
 session_start();
-include "db.php";
+include "../classes/db.php";
 
 
 /**
@@ -23,22 +23,21 @@ class Register extends Database
     public function __construct()
     {
         parent::__construct();
-       
+
         $this->register();
     }
 
     /**
      * register Method
      * 
-     * Handles user registration. Checks if the 'submit' button is clicked, then validates and inserts user data into the database.
-     * Checks for duplicate emails and phone numbers to ensure unique registrations.
-     * If registration is successful, sets the 'member_details' session variable and redirects to the user page.
+     * Handles user registration. Validates user input and checks for duplicate emails and phone numbers before inserting user data into the database.
+     * If registration is successful, sets session variables for the registered user and redirects to the user page.
      *
      * @return void
      */
     public function register()
     {
-        if (isset($_POST['submit'])) {
+        if (isset ($_POST['submit'])) {
 
             $firstname = $_POST['firstname'];
             $lastname = $_POST['lastname'];
@@ -47,54 +46,72 @@ class Register extends Database
             $phone = $_POST['phoneno'];
             $address = $_POST['address'];
             $role = "User";
+            $hash_password = hash('sha256', $password);
 
-            if ( empty( $email ) || empty( $phone ) ) {
-                header('location: ../template/registration.php');
-                return;
+            $errors = array();
+
+           
+            if (empty ($firstname)) {
+                $errors['firstname'] = "First name is required";
             }
 
-            // Check for duplicate user entries
-            $duplicate = "SELECT * FROM users";
-            $duplicate_result = mysqli_query($this->get_connection(), $duplicate);
+            
+            if (empty ($lastname)) {
+                $errors['lastname'] = "Last name is required";
+            }
 
-            while ($row = mysqli_fetch_array($duplicate_result, MYSQLI_ASSOC)) {
-                if ($row['email'] == $email || $row['phone'] == $phone) {
-                    $_SESSION['error_message'] = "User with this email or phone number already exists!";
-                    header('location: ../template/registration.php');
+          
+            if (empty ($email)) {
+                $errors['email'] = "Email is required";
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $errors['email'] = "Invalid email format";
+            }
+
+            if (empty ($phone)) {
+                $errors['phone'] = "Phone number is required";
+            } elseif (!preg_match("/^[0-9]{10}$/", $phone)) {
+                $errors['phone'] = "Invalid phone number";
+            }
+            if (empty ($password)) {
+                $errors['password'] = "Password is required";
+            } elseif (strlen($password) < 6) {
+                $errors['password'] = "Password must be at least 6 characters long";
+            }
+
+            $duplicate_query = "SELECT * FROM users WHERE email = '$email' OR phone = '$phone'";
+            $duplicate_result = $this->get_connection()->query($duplicate_query);
+
+            if ($duplicate_result->num_rows > 0) {
+                $errors['duplicate'] = "User already exists with this email or phone number";
+            }
+
+            if (empty ($errors)) {
+          
+                $sql = "INSERT INTO users (firstname, lastname, password, email, phone, address, role) 
+                VALUES ('$firstname', '$lastname', '$hash_password', '$email', '$phone', '$address', '$role')";
+                $result = $this->get_connection()->query($sql);
+
+                if ($result) {
+                   
+                    $_SESSION['member_details'] = array(
+                        'id' => mysqli_insert_id($this->get_connection()),
+                        'email' => $email,
+                        'role' => $role,
+                        'firstname' => $firstname,
+                        'login_time' => time(),
+                        'status' => 1,
+                        'message' => "You are registered successfully!"
+                    );
+
+                    $_SESSION['register_message'] = "You are registered successfully!";
+                    header("Location: ../template/user.php");
                     exit();
+                } else {
+                    echo "<script>alert('Error!')</script>" . $sql . "<br>" . $this->get_connection()->error;
                 }
-            }
-
-            // Insert user data into the database
-            $sql = "INSERT INTO users (firstname, lastname, password, email, phone, address, role) 
-                    VALUES ('$firstname','$lastname', '$password','$email','$phone','$address','$role')";
-            $result = $this->get_connection()->query($sql);
-
-            if ($result) {
-                // Set session variables for the registered user
-                $_SESSION['member_details'] = array(
-                    'id' => mysqli_insert_id($this->get_connection()),
-                    'email' => $email,
-                    'role' => $role,
-                    'firstname' => $firstname,
-                    'login_time' => time(),
-                    'status' => 1,
-                    'message' => "You are registered successfully!"
-                );
-
-                $_SESSION['register_message'] = "You are registered successfully!";
-
-                // Redirect to the user page
-                header("Location: ../template/user.php");
-                exit();
-            } else {
-                $_SESSION['error_message'] = "Error occurred while registering. Please try again later.";
-                header('location: ../template/registration.php');
-                exit();
             }
         }
     }
 }
 
-new Register();
 ?>
